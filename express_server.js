@@ -46,6 +46,12 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post("/urls/:id/delete", (req, res) => {
+  const id = req.params.id;
+  delete urlDatabase[id];
+  res.redirect("/urls");
+});
+
 app.post("/urls", (req, res) => {
   // Generate a new id for the short URL
   const id = generateRandomString();
