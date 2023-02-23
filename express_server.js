@@ -8,6 +8,16 @@ const generateRandomString = function() {
   return result;
 };
 
+function getUserByEmail(email, users) {
+  for (const userId in users) {
+    const user = users[userId];
+    if (user.email === email) {
+      return user;
+    }
+  }
+  return null;
+}
+
 const express = require("express");
 const cookieParser = require("cookie-parser"); // Importing cookie-parser module
 const app = express();
@@ -93,9 +103,19 @@ app.post("/urls/:id", (req, res) => {
 
 
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
-  res.redirect("/urls");
+  const { email, password } = req.body;
+  const user = getUserByEmail(email, users);
+
+  if (!user || !bcrypt.compareSync(password, user.password)) {
+    res.status(403).send("Invalid email or password.");
+  } else {
+    req.session.user_id = user.id;
+    res.redirect("/urls");
+  }
+});
+
+app.get("/login", (req, res) => {
+  res.render("login"); 
 });
 
 app.post("/logout", (req, res) => {
@@ -122,3 +142,4 @@ app.post("/register", (req, res) => {
     }
   }
 });
+
