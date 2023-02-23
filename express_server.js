@@ -1,10 +1,10 @@
-function generateRandomString() {}
-
 const express = require("express");
+const cookieParser = require("cookie-parser"); // Importing cookie-parser module
 const app = express();
 const PORT = 8080; // default port 8080
 
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // Using cookie-parser middleware
 
 app.set("view engine", "ejs");
 
@@ -30,19 +30,18 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req,res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { urls: urlDatabase, username: req.cookies.username }; // Adding username to templateVars
   res.render("urls_index", templateVars);
 });
 
-// adds a GET Route to show the form
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { username: req.cookies.username }; // Adding username to templateVars
+  res.render("urls_new", templateVars);
 });
 
-// ask a mentor about what to put here!
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const templateVars = { id, longURL: urlDatabase[id]  };
+  const templateVars = { id, longURL: urlDatabase[id], username: req.cookies.username }; // Adding username to templateVars
   res.render("urls_show", templateVars);
 });
 
@@ -53,16 +52,9 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  // Generate a new id for the short URL
   const id = generateRandomString();
-
-  // Extract the longURL from the request body
   const longURL = req.body.longURL;
-
-  // Add the id-longURL key-value pair to the urlDatabase
   urlDatabase[id] = longURL;
-
-  // Redirect the user to the page that shows the short URL and its corresponding long URL
   res.redirect(`/urls/${id}`);
 });
 
@@ -76,16 +68,11 @@ app.get("/u/:id", (req, res) => {
   }
 });
 
-
-app.post('/urls/:id', (req, res) => {
+app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const updatedLongURL = req.body.updatedLongURL; // assuming you have an input field in your edit form with name "updatedLongURL"
-
-  // Update the long URL for the specified id in the urlDatabase
+  const updatedLongURL = req.body.updatedLongURL;
   urlDatabase[id] = updatedLongURL;
-
-  // Redirect back to the URLs index page
-  res.redirect('/urls');
+  res.redirect("/urls");
 });
 
 app.post("/login", (req, res) => {
