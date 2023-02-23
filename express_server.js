@@ -18,12 +18,27 @@ function getUserByEmail(email, users) {
   return null;
 }
 
+function createUser(email, password) {
+  const userID = generateRandomString();
+  const user = {
+    id: userID,
+    email: email,
+    password: password
+  };
+  console.log("New user created:", user);
+  users[userID] = user;
+  return userID;
+}
+
+
+
 const express = require("express");
 const cookieParser = require("cookie-parser"); // Importing cookie-parser module
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require('body-parser');
 const users = require('./users');
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
@@ -38,7 +53,7 @@ const urlDatabase = {
 
 app.get("/", (req, res) => {
   res.send("Hello!");
-});
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -96,11 +111,10 @@ app.get("/u/:id", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const updatedLongURL = req.body.updatedLongURL;
-  urlDatabase[id] = updatedLongURL;
-  res.redirect("/urls");
+  const updatedLongURL = req.body.longURL; // Assuming the long URL is stored in the "longURL" property of the request body
+  urlDatabase[id].longURL = updatedLongURL; // Update the longURL property of the corresponding object in the database
+  res.redirect("/urls"); // Redirect the client back to the /urls page
 });
-
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
