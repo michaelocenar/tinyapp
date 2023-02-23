@@ -76,6 +76,7 @@ app.get("/u/:id", (req, res) => {
   }
 });
 
+
 app.post('/urls/:id', (req, res) => {
   const id = req.params.id;
   const updatedLongURL = req.body.updatedLongURL; // assuming you have an input field in your edit form with name "updatedLongURL"
@@ -85,5 +86,11 @@ app.post('/urls/:id', (req, res) => {
 
   // Redirect back to the URLs index page
   res.redirect('/urls');
+});
+
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie("username", username);
+  res.redirect("/urls");
 });
 
