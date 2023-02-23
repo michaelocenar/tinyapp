@@ -75,3 +75,15 @@ app.get("/u/:id", (req, res) => {
     res.status(404).send("Short URL not found");
   }
 });
+
+app.post('/urls/:id', (req, res) => {
+  const id = req.params.id;
+  const updatedLongURL = req.body.updatedLongURL; // assuming you have an input field in your edit form with name "updatedLongURL"
+
+  // Update the long URL for the specified id in the urlDatabase
+  urlDatabase[id] = updatedLongURL;
+
+  // Redirect back to the URLs index page
+  res.redirect('/urls');
+});
+
