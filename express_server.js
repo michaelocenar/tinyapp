@@ -1,8 +1,21 @@
+const generateRandomString = function() {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < 6; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+
 const express = require("express");
 const cookieParser = require("cookie-parser"); // Importing cookie-parser module
 const app = express();
 const PORT = 8080; // default port 8080
+const bodyParser = require('body-parser');
+const users = require('./users');
 
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // Using cookie-parser middleware
 
@@ -30,18 +43,21 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req,res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies.username }; // Adding username to templateVars
+  const user = users[req.cookies.user_id];
+  const templateVars = { urls: urlDatabase, user };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies.username }; // Adding username to templateVars
+  const user = users[req.cookies.user_id];
+  const templateVars = { user };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const templateVars = { id, longURL: urlDatabase[id], username: req.cookies.username }; // Adding username to templateVars
+  const user = users[req.cookies.user_id];
+  const templateVars = { id, longURL: urlDatabase[id], user };
   res.render("urls_show", templateVars);
 });
 
@@ -89,4 +105,20 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   res.render("register");
+});
+
+app.post("/register", (req, res) => {
+  const { email, password } = req.body;
+  if (email === "" || password === "") {
+    res.status(400).send("Email or password cannot be empty.");
+  } else {
+    const user = getUserByEmail(email, users);
+    if (user) {
+      res.status(400).send("Email already exists. Please try again.");
+    } else {
+      const newUser = createUser(email, password, users);
+      req.session.user_id = newUser.id;
+      res.redirect("/urls");
+    }
+  }
 });
