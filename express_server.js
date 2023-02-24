@@ -8,7 +8,7 @@ const generateRandomString = function() {
   return result;
 };
 
-function createUser(email, password, users) {
+const createUser = function (email, password, users) {
   const userID = generateRandomString();
   const user = {
     id: userID,
@@ -229,10 +229,6 @@ app.post("/register", (req, res) => {
       res.status(400).send("Email already exists. Please try again.");
     } else {
       const newUserID = createUser(email, password, users);
-      // not sure why this is throwing an error when trying to register
-      // req.session.userID = newUser.id;
-      // console.log(req.session);
-      // res.cookie("userID", newUserID);
       req.session.userID = newUserID;
       res.redirect("/urls");
     }
