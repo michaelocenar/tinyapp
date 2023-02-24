@@ -18,12 +18,12 @@ function getUserByEmail(email, users) {
   return null;
 }
 
-function createUser(email, password) {
+function createUser(email, password, users) {
   const userID = generateRandomString();
   const user = {
     id: userID,
     email: email,
-    password: password
+    password: bcrypt.hashSync(password, 10)
   };
   console.log("New user created:", user);
   users[userID] = user;
@@ -38,6 +38,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require('body-parser');
 const users = require('./users');
+const bcrypt = require('bcrypt');
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -68,20 +69,20 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req,res) => {
-  const user = users[req.cookies.user_id];
+  const user = users[req.cookies.userID];
   const templateVars = { urls: urlDatabase, user };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const user = users[req.cookies.user_id];
+  const user = users[req.cookies.userID];
   const templateVars = { user };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const user = users[req.cookies.user_id];
+  const user = users[req.cookies.userID];
   const templateVars = { id, longURL: urlDatabase[id], user };
   res.render("urls_show", templateVars);
 });
@@ -112,18 +113,23 @@ app.get("/u/:id", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const updatedLongURL = req.body.longURL; // Assuming the long URL is stored in the "longURL" property of the request body
-  urlDatabase[id].longURL = updatedLongURL; // Update the longURL property of the corresponding object in the database
+  console.log(updatedLongURL);
+  console.log("urlDatabase", urlDatabase[id]);
+  urlDatabase[id] = updatedLongURL; // Update the longURL property of the corresponding object in the database
   res.redirect("/urls"); // Redirect the client back to the /urls page
 });
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = getUserByEmail(email, users);
-
+  console.log(user);
+  console.log(password);
+  console.log(user.password);
+  console.log(bcrypt.compareSync(password, user.password));
   if (!user || !bcrypt.compareSync(password, user.password)) {
     res.status(403).send("Invalid email or password.");
   } else {
-    req.session.user_id = user.id;
+    res.cookie("userID", user.id);
     res.redirect("/urls");
   }
 });
@@ -133,8 +139,8 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
-  res.redirect("/urls");
+  res.clearCookie("userID");
+  res.redirect("/login");
 });
 
 app.get("/register", (req, res) => {
@@ -150,8 +156,11 @@ app.post("/register", (req, res) => {
     if (user) {
       res.status(400).send("Email already exists. Please try again.");
     } else {
-      const newUser = createUser(email, password, users);
-      req.session.user_id = newUser.id;
+      const newUserID = createUser(email, password, users);
+      // not sure why this is throwing an error when trying to register
+      // req.session.userID = newUser.id;
+      // console.log(req.session);
+      res.cookie("userID", newUserID);
       res.redirect("/urls");
     }
   }
