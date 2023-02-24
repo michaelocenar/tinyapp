@@ -8,16 +8,6 @@ const generateRandomString = function() {
   return result;
 };
 
-function getUserByEmail(email, users) {
-  for (const userId in users) {
-    const user = users[userId];
-    if (user.email === email) {
-      return user;
-    }
-  }
-  return null;
-}
-
 function createUser(email, password, users) {
   const userID = generateRandomString();
   const user = {
@@ -47,6 +37,7 @@ const bodyParser = require('body-parser');
 const users = require('./users');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
+const { getUserByEmail } = require('./helpers');
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
