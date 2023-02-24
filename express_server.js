@@ -203,7 +203,8 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("userID");
+  // res.clearCookie("userID");
+  req.session = null;
   res.redirect("/login");
 });
 
