@@ -48,8 +48,14 @@ app.use(cookieParser()); // Using cookie-parser middleware
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 app.get("/", (req, res) => {
@@ -87,7 +93,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const user = users[req.cookies.userID];
-  const templateVars = { id, longURL: urlDatabase[id], user };
+  const templateVars = { id, longURL: urlDatabase[id].longURL, user };
   res.render("urls_show", templateVars);
 });
 
@@ -102,7 +108,7 @@ app.post("/urls", (req, res) => {
   if (userId) {
     const id = generateRandomString();
     const longURL = req.body.longURL;
-    urlDatabase[id] = { longURL, userID: userId };
+    urlDatabase[id] = { longURL: longURL, userID: userId };
     res.redirect(`/urls/${id}`);
   } else {
     res.status(401).send("You must be logged in to shorten URLs.");
@@ -111,7 +117,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   if (longURL) {
     res.redirect(longURL);
   } else {
@@ -122,19 +128,13 @@ app.get("/u/:id", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const updatedLongURL = req.body.longURL; // Assuming the long URL is stored in the "longURL" property of the request body
-  console.log(updatedLongURL);
-  console.log("urlDatabase", urlDatabase[id]);
-  urlDatabase[id] = updatedLongURL; // Update the longURL property of the corresponding object in the database
+  urlDatabase[id].longURL = updatedLongURL; // Update the longURL property of the corresponding object in the database
   res.redirect("/urls"); // Redirect the client back to the /urls page
 });
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = getUserByEmail(email, users);
-  console.log(user);
-  console.log(password);
-  console.log(user.password);
-  console.log(bcrypt.compareSync(password, user.password));
   if (!user || !bcrypt.compareSync(password, user.password)) {
     res.status(403).send("Invalid email or password.");
   } else {

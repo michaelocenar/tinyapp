@@ -54,7 +54,7 @@
           <% for (let id in urls) { %>
             <tr>
               <td><%= id %></td>
-              <td><%= urls[id] %></td>
+              <td><%= urls[id].longURL%></td>
               <td>
                 <div class="btn-group" role="group">
                   <form method="POST" action="/urls/<%= id %>/delete">
