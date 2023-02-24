@@ -30,7 +30,15 @@ function createUser(email, password, users) {
   return userID;
 }
 
-
+const urlsForUser = function(id) {
+  let userURLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      userURLs[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return userURLs;
+};
 
 const express = require("express");
 const cookieParser = require("cookie-parser"); // Importing cookie-parser module
@@ -74,10 +82,17 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.get("/urls", (req,res) => {
+app.get("/urls", (req, res) => {
   const user = users[req.cookies.userID];
-  const templateVars = { urls: urlDatabase, user };
-  res.render("urls_index", templateVars);
+  if (!user) {
+    // if user is not logged in, return an error message
+    res.status(401).send('You need to log in first!');
+  } else {
+    // if user is logged in, retrieve their URLs and render the urls_index page
+    const userURLs = urlsForUser(user.id);
+    const templateVars = { urls: userURLs, user };
+    res.render("urls_index", templateVars);
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -90,6 +105,7 @@ app.get("/urls/new", (req, res) => {
     res.redirect("/login");
   }
 });
+
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const user = users[req.cookies.userID];
