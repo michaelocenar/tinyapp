@@ -41,17 +41,20 @@ const urlsForUser = function(id) {
 };
 
 const express = require("express");
-const cookieParser = require("cookie-parser"); // Importing cookie-parser module
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require('body-parser');
 const users = require('./users');
 const bcrypt = require('bcrypt');
+const cookieSession = require('cookie-session');
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser()); // Using cookie-parser middleware
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 
 app.set("view engine", "ejs");
 
@@ -83,7 +86,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const user = users[req.cookies.userID];
+  const user = users[req.session.userID];
   if (!user) {
     // if user is not logged in, return an error message
     res.status(401).send('You need to log in first!');
@@ -96,7 +99,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const userId = req.cookies.userID; // Read the userID cookie
+  const userId = req.session.userID; // Read the userID cookie
   if (userId) {
     const user = users[userId];
     const templateVars = { user };
@@ -108,7 +111,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const user = users[req.cookies.userID];
+  const user = users[req.session.userID];
   const url = urlDatabase[id];
 
   if (!user) {
@@ -130,7 +133,7 @@ app.get("/urls/:id", (req, res) => {
 
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
-  const user = users[req.cookies.userID];
+  const user = users[req.session.userID];
   const url = urlDatabase[id];
   
   if (!url) {
@@ -146,7 +149,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const userId = req.cookies.userID; // Read the userID cookie
+  const userId = req.session.userID; // Read the userID cookie
   if (userId) {
     const id = generateRandomString();
     const longURL = req.body.longURL;
@@ -169,7 +172,7 @@ app.get("/u/:id", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const user = users[req.cookies.userID];
+  const user = users[req.session.userID];
   const url = urlDatabase[id];
   
   if (!url) {
@@ -198,7 +201,7 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const userId = req.cookies.userID; // Read the userID cookie
+  const userId = req.session.userID; // Read the userID cookie
   if (userId) {
     // If the cookie exists, redirect the user to /urls
     res.redirect("/urls");
@@ -214,7 +217,7 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const userId = req.cookies.userID; // Read the userID cookie
+  const userId = req.session.userID; // Read the userID cookie
   if (userId) {
     // If the cookie exists, redirect the user to /urls
     res.redirect("/urls");
@@ -237,7 +240,8 @@ app.post("/register", (req, res) => {
       // not sure why this is throwing an error when trying to register
       // req.session.userID = newUser.id;
       // console.log(req.session);
-      res.cookie("userID", newUserID);
+      // res.cookie("userID", newUserID);
+      req.session.userID = newUserID;
       res.redirect("/urls");
     }
   }
