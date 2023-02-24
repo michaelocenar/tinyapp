@@ -75,11 +75,15 @@ app.get("/urls", (req,res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const user = users[req.cookies.userID];
-  const templateVars = { user };
-  res.render("urls_new", templateVars);
+  const userId = req.cookies.userID; // Read the userID cookie
+  if (userId) {
+    const user = users[userId];
+    const templateVars = { user };
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
-
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const user = users[req.cookies.userID];
@@ -94,10 +98,15 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const id = generateRandomString();
-  const longURL = req.body.longURL;
-  urlDatabase[id] = longURL;
-  res.redirect(`/urls/${id}`);
+  const userId = req.cookies.userID; // Read the userID cookie
+  if (userId) {
+    const id = generateRandomString();
+    const longURL = req.body.longURL;
+    urlDatabase[id] = { longURL, userID: userId };
+    res.redirect(`/urls/${id}`);
+  } else {
+    res.status(401).send("You must be logged in to shorten URLs.");
+  }
 });
 
 app.get("/u/:id", (req, res) => {
@@ -106,7 +115,7 @@ app.get("/u/:id", (req, res) => {
   if (longURL) {
     res.redirect(longURL);
   } else {
-    res.status(404).send("Short URL not found");
+    res.status(404).send("<h1>Short URL not found</h1>");
   }
 });
 
@@ -135,7 +144,14 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login"); 
+  const userId = req.cookies.userID; // Read the userID cookie
+  if (userId) {
+    // If the cookie exists, redirect the user to /urls
+    res.redirect("/urls");
+  } else {
+    // If the cookie doesn't exist, render the login page
+    res.render("login");
+  }
 });
 
 app.post("/logout", (req, res) => {
@@ -144,7 +160,14 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("register");
+  const userId = req.cookies.userID; // Read the userID cookie
+  if (userId) {
+    // If the cookie exists, redirect the user to /urls
+    res.redirect("/urls");
+  } else {
+    // If the cookie doesn't exist, render the register page
+    res.render("register");
+  }
 });
 
 app.post("/register", (req, res) => {
