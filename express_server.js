@@ -109,14 +109,40 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const user = users[req.cookies.userID];
-  const templateVars = { id, longURL: urlDatabase[id].longURL, user };
-  res.render("urls_show", templateVars);
+  const url = urlDatabase[id];
+
+  if (!user) {
+    // if user is not logged in, redirect to login page
+    res.redirect("/login");
+  } else if (!url) {
+    // if URL does not exist, return a 404 error page
+    res.status(404).render("404");
+  } else if (url.userID !== user.id) {
+    // if URL does not belong to user, return an error message
+    const templateVars = { user, error: "You do not have permission to access this URL" };
+    res.status(403).render("error", templateVars);
+  } else {
+    // if user is logged in and URL belongs to them, render the urls_show page
+    const templateVars = { id, longURL: url.longURL, user };
+    res.render("urls_show", templateVars);
+  }
 });
 
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
-  delete urlDatabase[id];
-  res.redirect("/urls");
+  const user = users[req.cookies.userID];
+  const url = urlDatabase[id];
+  
+  if (!url) {
+    res.status(404).send("URL not found");
+  } else if (!user) {
+    res.status(401).send("Please login to delete URLs");
+  } else if (url.userID !== user.id) {
+    res.status(403).send("You do not own this URL");
+  } else {
+    delete urlDatabase[id];
+    res.redirect("/urls");
+  }
 });
 
 app.post("/urls", (req, res) => {
@@ -143,10 +169,22 @@ app.get("/u/:id", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const updatedLongURL = req.body.longURL; // Assuming the long URL is stored in the "longURL" property of the request body
-  urlDatabase[id].longURL = updatedLongURL; // Update the longURL property of the corresponding object in the database
-  res.redirect("/urls"); // Redirect the client back to the /urls page
+  const user = users[req.cookies.userID];
+  const url = urlDatabase[id];
+  
+  if (!url) {
+    res.status(404).send("URL not found");
+  } else if (!user) {
+    res.status(401).send("Please login to edit URLs");
+  } else if (url.userID !== user.id) {
+    res.status(403).send("You do not own this URL");
+  } else {
+    const updatedLongURL = req.body.longURL;
+    url.longURL = updatedLongURL;
+    res.redirect("/urls");
+  }
 });
+
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
