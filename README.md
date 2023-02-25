@@ -31,8 +31,6 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 - Users can create, edit, and delete their own shortened URLs.
 
-- Users can view detailed analytics about their shortened URLs, including the number of times it has been accessed and by whom.
-
 - Shortened URLs are protected by user authentication to ensure privacy and security.
 
 ## Contributions 
