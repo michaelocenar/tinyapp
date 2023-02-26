@@ -1,6 +1,6 @@
 # TinyApp Project
 
-TinyApp is the first ever ewb application I have built. To think that a month ago, I didn't even know what an object was and today, I have made a full stack web application built with Node and Express that allows users to shorten long URLs is amazing. In retrospect, there is probably a lot of things I could have done to make my code more modular and have the HTML written better, but the app is functional (to the best of knowledge) and I'm proud to have made it!
+TinyApp is the first ever web application I have built. To think that a month ago, I didn't even know what an object was and today, I have made a full stack web application built with Node and Express that allows users to shorten long URLs is amazing. In retrospect, there is probably a lot of things I could have done to make my code more modular and have the HTML written better, but the app is functional (to the best of knowledge) and I'm proud to have made it!
 
 ## Final Product
 
