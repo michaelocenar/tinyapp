@@ -23,7 +23,7 @@ TinyApp is the first ever web application I have built. To think that a month ag
 
 3. Start the development server using the npm start command.
 
-4. Open your browser and navigate to http://localhost:8080/ to start using TinyApp.
+4. Open your browser and navigate to http://localhost:8080/register to start using TinyApp.
 
 ## Features 
 
