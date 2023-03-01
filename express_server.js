@@ -189,12 +189,13 @@ app.post("/login", (req, res) => {
 
 app.get("/login", (req, res) => {
   const userId = req.session.userID; // Read the userID cookie
+  const user = users[req.session.userID];
   if (userId) {
     // If the cookie exists, redirect the user to /urls
     res.redirect("/urls");
   } else {
     // If the cookie doesn't exist, render the login page
-    res.render("login");
+    res.render("login", { user: user });
   }
 });
 
@@ -206,12 +207,13 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   const userId = req.session.userID; // Read the userID cookie
+  const user = users[req.session.userID];
   if (userId) {
     // If the cookie exists, redirect the user to /urls
     res.redirect("/urls");
   } else {
     // If the cookie doesn't exist, render the register page
-    res.render("register");
+    res.render("register", { user: user });
   }
 });
 
