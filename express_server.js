@@ -61,7 +61,7 @@ const urlDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/register");
 })
 
 app.get("/urls.json", (req, res) => {
