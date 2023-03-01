@@ -102,15 +102,14 @@ app.get("/urls/:id", (req, res) => {
   const url = urlDatabase[id];
 
   if (!user) {
-    // if user is not logged in, redirect to login page
-    res.redirect("/login");
+    // if user is not logged in, return HTML with a relevant error message
+    res.status(401).send("You need to be logged in to access this page.");
   } else if (!url) {
     // if URL does not exist, return a 404 error page
     res.status(404).render("404");
   } else if (url.userID !== user.id) {
-    // if URL does not belong to user, return an error message
-    const templateVars = { user, error: "You do not have permission to access this URL" };
-    res.status(403).render("error", templateVars);
+    // if URL does not belong to user, return HTML with a relevant error message
+    res.status(401).send("You do not have access to this URL.");
   } else {
     // if user is logged in and URL belongs to them, render the urls_show page
     const templateVars = { id, longURL: url.longURL, user };
