@@ -6,7 +6,7 @@ const users = require('./users');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
 const { generateRandomString, createUser, urlsForUser, getUserByEmail } = require('./helpers');
-
+const { urlDatabase } = require("./database");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
@@ -16,17 +16,6 @@ app.use(cookieSession({
 }));
 
 app.set("view engine", "ejs");
-
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lW",
-  },
-};
 
 app.get("/", (req, res) => {
   res.redirect("/register");
