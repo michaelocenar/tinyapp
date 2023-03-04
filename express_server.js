@@ -146,7 +146,7 @@ app.post("/login", (req, res) => {
   if (!user || !bcrypt.compareSync(password, user.password)) {
     res.status(403).send("Invalid email or password.");
   } else {
-    res.cookie("userID", user.id);
+    req.session.userID = user.id; // Store the user ID in the session
     res.redirect("/urls");
   }
 });
@@ -164,7 +164,6 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  // res.clearCookie("userID");
   req.session = null;
   res.redirect("/login");
 });
