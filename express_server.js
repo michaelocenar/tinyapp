@@ -1,35 +1,3 @@
-const generateRandomString = function() {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-};
-
-const createUser = function (email, password, users) {
-  const userID = generateRandomString();
-  const user = {
-    id: userID,
-    email: email,
-    password: bcrypt.hashSync(password, 10)
-  };
-  console.log("New user created:", user);
-  users[userID] = user;
-  return userID;
-}
-
-const urlsForUser = function(id) {
-  let userURLs = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      userURLs[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return userURLs;
-};
-
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -37,7 +5,7 @@ const bodyParser = require('body-parser');
 const users = require('./users');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
-const { getUserByEmail } = require('./helpers');
+const { generateRandomString, createUser, urlsForUser, getUserByEmail } = require('./helpers');
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
