@@ -1,3 +1,7 @@
+const { urlDatabase } = require("./database");
+const bcrypt = require('bcrypt');
+
+
 const generateRandomString = function() {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

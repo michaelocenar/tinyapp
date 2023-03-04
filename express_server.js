@@ -3,10 +3,10 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require('body-parser');
 const users = require('./users');
-const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
 const { generateRandomString, createUser, urlsForUser, getUserByEmail } = require('./helpers');
 const { urlDatabase } = require("./database");
+const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
@@ -18,8 +18,16 @@ app.use(cookieSession({
 app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
-  res.redirect("/register");
-})
+  const user = users[req.session.userID];
+  if (!user) {
+    // if user is not logged in, redirect to /login
+    res.redirect("/login");
+    // if logged in, redirect to /urls
+  } else {
+    res.redirect("/urls");
+  }
+});
+
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
